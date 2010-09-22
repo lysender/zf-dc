@@ -1,0 +1,12 @@
+Icon?
+.DS_Store
+.svn
+.directory
+Thumbs.db
+
+.buildpath
+.project
+.settings
+*.kpf
+*.swp
+

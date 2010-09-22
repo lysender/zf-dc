@@ -1,0 +1,47 @@
+<?php
+
+abstract class Dc_Model_Abstract
+{
+	/** 
+	 * Model fields
+	 *
+	 * @var array
+	 */
+	protected $_fields;
+
+	/** 
+	 * Model messages
+	 *
+	 * @var array
+	 */
+	protected $_messages = array();
+
+	/** 
+	 * Model message templates for validators
+	 *
+	 * @var array
+	 */
+	protected $_messageTemplates = array();
+
+	/** 
+	 * Sets a message to a field
+	 *
+	 * @param string $field
+	 * @param array $message
+	 * @return $this
+	 */
+	public function setMessage($field, $message)
+	{
+		$this->_messages[$field] = $message;
+		return $this;
+	}
+
+	public function getMessageTemplate($field, $validator)
+	{
+		if (isset($this->_messageTemplates[$field][$validator]))
+		{
+			return $this->_messageTemplates[$field][$validator];
+		}
+		return null;
+	}
+}
