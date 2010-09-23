@@ -1,7 +1,14 @@
 <?php
 
 abstract class Dc_Form_Abstract extends Zend_Form
-{
+{	
+	/** 
+	 * Model for basic data interaction
+	 * 
+	 * @var Dc_Model_Abstract
+	 */
+	protected $_model;
+		
 	/** 
 	 * Validation messages
 	 * 
@@ -11,10 +18,26 @@ abstract class Dc_Form_Abstract extends Zend_Form
 	
 	/** 
 	 * Token field name to use - anti CSRF
+	 * If empty, no token will be inserted
 	 * 
 	 * @var string
 	 */
 	protected $_tokenField = 'token';
+	
+	/** 
+	 * Salt used to hash the token
+	 * 
+	 * @var string
+	 */
+	protected $_tokenSalt = '12, 25, Av, 5t, tasda212';
+	
+	/** 
+	 * Number in seconds - the duration where the token
+	 * in session is considered valid
+	 * 
+	 * @var int
+	 */
+	protected $_tokenTimeout = 600;
 	
 	/** 
 	 * Initialization
@@ -36,16 +59,10 @@ abstract class Dc_Form_Abstract extends Zend_Form
 		$this->addElementPrefixPath('Dc_Form', 'Dc/Form');
 		$this->addElementPrefixPath('Dc_View', 'Dc/View');
 		
-		// Anti CSRF token
-		$token = new Zend_Form_Element_Hash('token');
-		$token->setSalt('12, 25, Av, 5t, tasda212')
-			->setIgnore(true)
-			->setTimeout(600)
-			->setDecorators(array(
-			array('ViewHelper')
-		));
-		
-		$this->addElement($token);
+		if ($this->_tokenField)
+		{
+			$this->_initTokenField();
+		}
 		
 		// Extensions...
 		$this->init();
@@ -53,6 +70,27 @@ abstract class Dc_Form_Abstract extends Zend_Form
 		$this->initValidationMessages();
 		
 		$this->loadDefaultDecorators();
+	}
+	
+	/** 
+	 * Initializes the token field
+	 * 
+	 * @return $this
+	 */
+	protected function _initTokenField()
+	{
+		// Anti CSRF token
+		$token = new Zend_Form_Element_Hash($this->_tokenField);
+		$token->setSalt($this->_tokenSalt)
+			->setIgnore(true)
+			->setTimeout($this->_tokenTimeout)
+			->setDecorators(array(
+			array('ViewHelper')
+		));
+	
+		$this->addElement($token);
+		
+		return $this;
 	}
 	
 	/** 
@@ -66,9 +104,15 @@ abstract class Dc_Form_Abstract extends Zend_Form
 		// Implemented by child classes
 	}
 	
+	/** 
+	 * Initializes the validator messages based on the
+	 * messages in the configuration file
+	 * 
+	 * @return $this
+	 */
 	public function initValidationMessages()
 	{
-		$messages = $this->loadMessageConfig();
+		$messages = $this->getMessageConfig();
 		
 		if ( ! empty($messages))
 		{
@@ -145,7 +189,7 @@ abstract class Dc_Form_Abstract extends Zend_Form
 			
 			$message = reset($messages[$field]);
 			
-			if ($field == $this->_tokenField)
+			if ($field == $this->_tokenField && $this->_tokenField)
 			{
 				$message = 'Session time out, try again';
 			}
@@ -179,7 +223,7 @@ abstract class Dc_Form_Abstract extends Zend_Form
 			// Only one message per field
 			$message = reset($fieldMessages);
 			
-			if ($field == $this->_tokenField)
+			if ($field == $this->_tokenField && $this->_tokenField)
 			{
 				$message = 'Session timeout, try again';
 			}
@@ -188,5 +232,28 @@ abstract class Dc_Form_Abstract extends Zend_Form
 		}
 		
 		return $result;
+	}
+	
+	/** 
+	 * Sets the model used for validation and data interaction
+	 * 
+	 * @param Dc_Model_Abstract $model
+	 * @return $this
+	 */
+	public function setModel(Dc_Model_Abstract $model)
+	{
+		$this->_model = $model;
+		
+		return $this;
+	}
+	
+	/** 
+	 * Returns the model object
+	 * 
+	 * @return Dc_Model_Abstract
+	 */
+	public function getModel()
+	{
+		return $this->_model;
 	}
 }
