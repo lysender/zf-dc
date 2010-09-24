@@ -134,7 +134,7 @@ class Dc_Controller_Crud extends Dc_Controller_Authorized
 	 * @param Default_Model_Abstract $model
 	 * @param Dc_Form $form
 	 */
-	public function processAdd(Dc_Model_Crud $model, Dc_Form_Crud $form)
+	public function processAdd(Dc_Model_Crud $model, Dc_Form_Abstract $form)
 	{
 		$action = $this->getRequest()->getActionName();
 		

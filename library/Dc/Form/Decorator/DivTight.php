@@ -39,6 +39,9 @@ class Dc_Form_Decorator_DivTight extends Zend_Form_Decorator_ViewHelper
         	{
         		$attribs['class'] = 'has-error';
         	}
+        	
+        	$errors = $element->getMessages();
+        	$attribs['title'] = implode(', ', $errors);
         }
         
         if (isset($attribs['tightClass']))
